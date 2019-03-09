@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.neusoft.xuxiao.mapper.ResourceMapper">
+
+	<!-- 开启二级缓存 -->
+	<cache type="cn.neusoft.xuxiao.mybatis.cache.MybatisRedisCache"/>
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="cn.neusoft.xuxiao.entity.Resource">
+		<result column="id" property="id" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="res_name" property="resName" />
+		<result column="type" property="type" />
+		<result column="url" property="url" />
+		<result column="code" property="code" />
+		<result column="enable" property="enable"/>
+		<result column="parent_id" property="parentId" />
+		<result column="listorder" property="listorder" />
+	</resultMap>
+
+	<!-- 通用查询结果列 -->
+	<sql id="Base_Column_List">
+		id,
+		create_time AS createTime,
+		update_time AS updateTime,
+		res_name AS resName, type, url, code, parent_id AS parentId, listorder ,enable
+	</sql>
+
+	<!--根据权限删除和角色的关系-->
+	<delete id="delRoleResource">
+		DELETE
+			FROM
+				role_resource
+			WHERE
+				resource_id = #{resId}
+
+	</delete>
+
+	<select id="findMenuCodeByUserId" resultType="java.lang.String">
+		SELECT  res.code from resource res
+		LEFT JOIN role_resource rm on res.id = rm.resource_id
+		LEFT join role r on r.id = rm.role_id
+		LEFT JOIN admin_role ar on ar.role_id = r.id
+		LEFT join admin ad on ar.admin_id = ad.id
+		WHERE ad.id = #{adminId} and res.enable=1
+	</select>
+
+	<!--根据角色查询资源信息-->
+	<select id="selectRoleResource" resultMap="BaseResultMap">
+		SELECT
+			res.*
+		FROM
+			resource res
+		JOIN role_resource rm ON rm.resource_id = res.id
+		JOIN role r ON r.id = rm.role_id
+		WHERE
+		r.id = #{roleId} and res.enable = 1
+
+	</select>
+
+
+	<select id="selectAdminMenu" resultMap="BaseResultMap">
+		SELECT  res.* from resource res
+		LEFT JOIN role_resource rm on res.id = rm.resource_id
+		LEFT join role r on r.id = rm.role_id
+		LEFT JOIN admin_role ar on ar.role_id = r.id
+		LEFT join admin ad on ar.admin_id = ad.id
+		WHERE ad.id = #{adminId} AND res.type = 0 and res.enable=1 ORDER BY res.create_time ASC
+	</select>
+
+</mapper>

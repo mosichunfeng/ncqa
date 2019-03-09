@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.neusoft.xuxiao.mapper.RoleMapper">
+	<cache type="cn.neusoft.xuxiao.mybatis.cache.MybatisRedisCache"/>
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="cn.neusoft.xuxiao.entity.Role">
+		<id column="id" property="id" />
+		<result column="role_name" property="roleName" />
+		<result column="role_desc" property="roleDesc" />
+		<result column="enable" property="enable" />
+		<result column="is_system" property="isSystem"/>
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, role_name AS roleName, role_desc AS roleDesc, enable, create_time AS createTime, update_time AS updateTime,is_system AS  isSystem
+    </sql>
+
+	<!--批量插入角色用户关系-->
+	<insert id="bathInsertAdminRole">
+		INSERT  INTO admin_role (admin_id,role_id) VALUES 
+		<foreach collection="roles" item="item" index="index" separator=",">
+			(#{adminId},#{item})
+		</foreach>
+	</insert>
+
+	<!--批量添加角色的权限-->
+	<insert id="bathInsertRes">
+		INSERT INTO role_resource (role_id,resource_id) VALUES
+		<foreach collection="res" item="item" index="index" separator=",">
+			(#{roleId},#{item})
+		</foreach>
+	</insert>
+
+	<!--根据adminID删除角色关系-->
+    <delete id="delRoleByAdmin">
+			DELETE FROM admin_role WHERE admin_id=#{adminId}
+	</delete>
+
+	<!--删除角色权限关系-->
+    <delete id="delResByRole">
+		DELETE FROM role_resource   WHERE role_id = #{roleId}
+	</delete>
+
+    <!--查询角色已经拥有的所有角色ID-->
+	<select id="findByAdmin" resultType="java.lang.String">
+		SELECT role_id from admin_role WHERE admin_id = #{adminId}
+	</select>
+
+</mapper>
