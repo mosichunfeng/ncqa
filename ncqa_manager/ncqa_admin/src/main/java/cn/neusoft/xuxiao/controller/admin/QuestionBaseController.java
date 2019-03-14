@@ -116,12 +116,7 @@ public class QuestionBaseController extends BaseController {
     public ResponseData upload(@RequestParam("file") MultipartFile file, String questionBaseId) {
         ResponseData responseData = new ResponseData();
         QuestionBase questionBase = questionBaseService.find(questionBaseId);
-        if (file == null) {
-            responseData.setStatus(false);
-            responseData.setMsg("没检测到文件");
-            logger.error("no file!");
-            return responseData;
-        }
+        if (StudentController.noFile(file, responseData, logger)) return responseData;
         if (questionBase == null) {
             responseData.setStatus(false);
             responseData.setMsg("该题库不存在或者已被删除！");

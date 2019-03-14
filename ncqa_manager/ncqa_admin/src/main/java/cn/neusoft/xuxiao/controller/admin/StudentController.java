@@ -6,6 +6,7 @@ import cn.neusoft.xuxiao.entity.ClassInfo;
 import cn.neusoft.xuxiao.entity.Student;
 import cn.neusoft.xuxiao.service.IClassInfoService;
 import cn.neusoft.xuxiao.service.IStudentService;
+import com.baomidou.mybatisplus.toolkit.IdWorker;
 import com.github.crab2died.ExcelUtils;
 import com.magicbeans.base.Pages;
 import com.magicbeans.base.ajax.ResponseData;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Controller
@@ -106,15 +108,10 @@ public class StudentController extends BaseController {
     @ResponseBody
     public ResponseData upload(@RequestParam("file") MultipartFile file, String studentClassId) {
         ResponseData responseData = new ResponseData();
-        if (file == null) {
-            responseData.setStatus(false);
-            responseData.setMsg("没检测到文件");
-            logger.error("no file!");
-            return responseData;
-        }
-        if(StringUtils.isEmpty(studentClassId)){//导入到指定班级
+        if (noFile(file, responseData, logger)) return responseData;
+        if(!StringUtils.isEmpty(studentClassId)) {//导入到指定班级
             ClassInfo classInfo = classInfoService.find(studentClassId);
-            if(classInfo==null){
+            if (classInfo == null) {
                 responseData.setStatus(false);
                 responseData.setMsg("班级不存在或已经被删除！");
                 logger.error("no class!");
@@ -125,18 +122,18 @@ public class StudentController extends BaseController {
                 List<Student> studentList = ExcelUtils.getInstance().readExcel2Objects(inputStream, Student.class
                         , 0, 2147483647, 0);
                 for (Student student : studentList) {
-                    student.setStudentClassId(studentClassId);
-                    student.setStudentClass(classInfo.getName());
-                    Student orginStudent = studentService.findStudentByStudentId(student.getStudentId());
-                    if(orginStudent == null){
-                        studentService.save(student);
+                    if (!StringUtils.isEmpty(student.getStudentId())) {
+                        student.setStudentClassId(studentClassId);
+                        student.setStudentClass(classInfo.getName());
+                        Student orginStudent = studentService.findStudentByStudentId(student.getStudentId());
+                        if (orginStudent == null) {
+                            studentService.save(student);
+                        }
                     }
+
                 }
             } catch (Exception e) {
-                responseData.setStatus(false);
-                responseData.setMsg("导入失败,请检查模板及数据!");
-                logger.error("no file!");
-                return responseData;
+                return templateError(responseData, e);
             }
 
         }else{//导入到所有
@@ -145,30 +142,46 @@ public class StudentController extends BaseController {
                 List<Student> studentList = ExcelUtils.getInstance().readExcel2Objects(is, Student.class
                         , 0, 2147483647, 0);
                 for (Student student : studentList) {
-                    List<Filter> filters = new ArrayList<>();
-                    filters.add(Filter.eq("name", student.getStudentClass().trim()));
-                    List<ClassInfo> list = classInfoService.findList(filters, null);
-                    if(list!=null&&list.size()>0){
-                        ClassInfo classInfo = list.get(0);
-                        student.setStudentClassId(classInfo.getId());
-                    }
-                    Student orginStudent = studentService.findStudentByStudentId(student.getStudentId());
-                    if(orginStudent == null){
-                        studentService.save(student);
+                    if(!StringUtils.isEmpty(student.getStudentId())) {
+                        List<Filter> filters = new ArrayList<>();
+                        filters.add(Filter.eq("name", student.getStudentClass().trim()));
+                        List<ClassInfo> list = classInfoService.findList(filters, null);
+                        if (list != null && list.size() > 0) {
+                            ClassInfo classInfo = list.get(0);
+                            student.setStudentClassId(classInfo.getId());
+                        }
+                        Student orginStudent = studentService.findStudentByStudentId(student.getStudentId());
+                        if (orginStudent == null) {
+                            studentService.save(student);
+                        }
                     }
                 }
             } catch (Exception e) {
-                responseData.setStatus(false);
-                responseData.setMsg("导入失败,请检查模板及数据!");
-                logger.error("no file!");
-                return responseData;
+                return templateError(responseData, e);
             }
 
         }
         responseData.setStatus(true);
         responseData.setMsg("导入成功!");
+        return responseData;
+    }
+
+    private ResponseData templateError(ResponseData responseData, Exception e) {
+        e.printStackTrace();
+        responseData.setStatus(false);
+        responseData.setMsg("导入失败,请检查模板及数据!");
         logger.error("no file!");
         return responseData;
+    }
+
+    static boolean noFile(@RequestParam("file") MultipartFile file, ResponseData responseData, Logger logger) {
+        if (file == null) {
+            responseData.setStatus(false);
+            responseData.setMsg("没检测到文件");
+            logger.error("no file!");
+            return true;
+        }
+        return false;
     }
 
 
@@ -177,4 +190,18 @@ public class StudentController extends BaseController {
         model.addAttribute("classinfo", classInfoService.findAll());
         return "view/student/lead";
     }
+
+    /**
+     * 根据id删除
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @GetMapping("del/{id}")
+    public ResponseData del(@PathVariable("id") String id){
+        ResponseData result = new ResponseData();
+        studentService.delete(id);
+        return  result;
+    }
+
 }

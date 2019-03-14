@@ -1,5 +1,6 @@
 package cn.neusoft.xuxiao.config;
 
+import cn.neusoft.xuxiao.util.TimeTool;
 import com.baomidou.mybatisplus.mapper.MetaObjectHandler;
 import com.baomidou.mybatisplus.toolkit.IdWorker;
 import org.apache.ibatis.reflection.MetaObject;
@@ -24,12 +25,12 @@ public class FillPublicMetaObjectHandler extends MetaObjectHandler {
         Object idObject = getFieldValByName(ID, metaObject);
 
         Object createtimeObj = getFieldValByName(CREATETIME, metaObject);
-
+//IdWorker.getId()+""
         if (StringUtils.isEmpty(idObject)) {
             setFieldValByName(ID ,IdWorker.getId()+"",metaObject);
         }
         if (null == createtimeObj) {
-            setFieldValByName(CREATETIME,new Date(),metaObject);
+            setFieldValByName(CREATETIME, new Date(),metaObject);
         }
         Object updatetimeObj = getFieldValByName(UPDATETIME, metaObject);
         if (null == updatetimeObj) {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.neusoft.xuxiao.mapper.JoinMapper">
+    <resultMap id="BaseResultMap" type="cn.neusoft.xuxiao.entity.Join">
+        <result column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="code" property="code"/>
+        <result column="question_base_id" property="questionBaseId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        user_id AS userId,
+        code,
+        question_base_id AS questionBaseId,
+        create_time AS createTime,
+        update_time AS updateTime
+    </sql>
+</mapper>

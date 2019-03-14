@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.neusoft.xuxiao.mapper.CallMapper">
+    <resultMap id="BaseResultMap" type="cn.neusoft.xuxiao.entity.Call">
+        <result column="id" property="id"/>
+        <result column="status" property="status"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        name,
+        start_time AS startTime,
+        end_time AS endTime,
+        create_time AS createTime,
+        update_time AS updateTime
+    </sql>
+
+    <select id="findRecordByCallId" parameterType="java.lang.String" resultType="cn.neusoft.xuxiao.entity.CallRecord">
+        SELECT
+          *
+        FROM
+          call_record
+        WHERE call_id = #{callId}
+    </select>
+</mapper>
