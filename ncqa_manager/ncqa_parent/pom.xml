@@ -7,6 +7,7 @@
     <groupId>cn.neusoft.xuxiao</groupId>
     <artifactId>ncqa_parent</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
 
     <modules>
