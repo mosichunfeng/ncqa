@@ -44,6 +44,9 @@
                                 <a href="${basePath}/student/list?studentClassId=${item.id!''}" class="edit">
                                     <li class="fa  fa-edit">查看学生列表</li>
                                 </a>
+                                <a href="${basePath}/student/list?studentClassId=${item.id!''}" class="edit">
+                                    <li class="fa  fa-edit">添加实习学生</li>
+                                </a>
                                 <a href="javascript:void (0)" class="delete" data-id="${item.id}">
                                     <li class="fa fa-trash">删除</li>
                                 </a>

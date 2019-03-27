@@ -11,4 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class QuestionBaseServiceImpl extends BaseServiceImp<QuestionBaseMapper, QuestionBase> implements IQuestionBaseService {
 
+    @Override
+    public QuestionBase findAllQuestionAndAnswer(String questionBaseId) {
+        return mapper.findAllQuestionAndAnswer(questionBaseId);
+    }
 }

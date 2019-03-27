@@ -74,6 +74,9 @@
                                 <a href="${basePath}/exam/export?questionBaseId=${item.id}">
                                     <li class="fa fa-edit">导出成绩</li>
                                 </a>
+                                <a href="${basePath}/join/export?questionBaseId=${item.id}">
+                                    <li class="fa fa-edit">导出报名表</li>
+                                </a>
                                 <a href="${basePath}/questionbase/edit?id=${item.id}" class="edit" data-id="${item.id}">
                                     <li class="fa  fa-edit">编辑</li>
                                 </a>

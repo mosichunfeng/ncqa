@@ -6,14 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @作者 邓瑶
- * @项目 BaseServer
- * @包 com.core.mybatis.Tree.java
- * @时间 2014年8月14日 上午11:16:40
- * @版本 1.0.0
- * @描述
- */
+
 public class Tree implements Serializable {
 
     private static final long serialVersionUID = 5401772599251813928L;

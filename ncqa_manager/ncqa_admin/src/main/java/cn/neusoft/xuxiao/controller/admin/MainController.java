@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Random;
 
 @Controller
 @RequestMapping
@@ -35,7 +36,9 @@ public class MainController extends BaseController {
     private IResourceService resourceService;
 
     @RequestMapping(value="/login", method=RequestMethod.GET)
-    public String loginForm(){
+    public String loginForm(Model model){
+        int random=(int)(Math.random()*8+1);
+        model.addAttribute("random", random);
         return "login";
     }
 

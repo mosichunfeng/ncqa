@@ -13,8 +13,58 @@
         <result column="available" property="available"/>
     </resultMap>
 
+    <resultMap id="findAll" type="cn.neusoft.xuxiao.entity.QuestionBase">
+        <result column="qbid" property="id"/>
+        <result column="kind_id" property="kindId"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="available" property="available"/>
+
+        <collection property="questionList" ofType="cn.neusoft.xuxiao.entity.Question">
+            <id column="qid" property="id"/>
+            <result column="question_type" property="questionType"/>
+            <result column="select_type" property="selectType"/>
+            <result column="content" property="content"/>
+            <result column="grade" property="grade"/>
+            <collection property="answerList" ofType="cn.neusoft.xuxiao.entity.Answer">
+                <id column="aid" property="id"/>
+                <result column="answer_index" property="answerIndex"/>
+                <result column="answer_content" property="answerContent"/>
+                <result column="answer_type" property="answerType"/>
+            </collection>
+        </collection>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id,kind_id AS kindId,name,description,create_time AS createTime,update_time AS updateTime,
         start_time AS startTime,end_time AS endTime,available
     </sql>
+
+    <select id="findAllQuestionAndAnswer" parameterType="java.lang.String" resultMap="findAll">
+      SELECT
+      qb.id AS qbid,
+      qb.name,
+      qb.description,
+      q.`id` AS qid,
+      q.`question_index`,
+      q.`select_type`,
+      q.`question_type`,
+      q.`content`,
+      q.`grade`,
+      a.id AS aid,
+      a.`answer_index`,
+      a.`answer_content`,
+      a.`answer_type`
+      FROM
+      question_base qb
+      INNER JOIN question q
+      ON q.`question_base_id` = qb.id
+      LEFT JOIN answer a
+      ON q.id = a.`question_id`
+      WHERE qb.id = #{questionBaseId}
+    </select>
 </mapper>

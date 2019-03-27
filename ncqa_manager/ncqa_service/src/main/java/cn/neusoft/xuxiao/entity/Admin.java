@@ -5,14 +5,7 @@ import com.magicbeans.base.BaseEntity;
 
 import java.io.Serializable;
 
-/**
- * <p>
- * 
- * </p>
- *
- * @author magicbeans
- * @since 2017-08-30
- */
+
 public class Admin extends BaseEntity<Admin> {
 
     private static final long serialVersionUID = 1L;

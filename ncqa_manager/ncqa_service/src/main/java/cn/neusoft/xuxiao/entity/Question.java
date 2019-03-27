@@ -33,5 +33,5 @@ public class Question extends BaseEntity<Question> {
     private String questionBaseName;
 
     @TableField(exist = false)
-    private String rightAnswer;
+    private RightAnswer rightAnswer;
 }

@@ -28,9 +28,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row m-l-1 ">
-                            <a href="${basePath}/questionbase/toLead" class="btn btn-sm btn-success">导出成绩</a>
-                        </div>
+
 
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">

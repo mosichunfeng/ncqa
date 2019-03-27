@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.neusoft.xuxiao.mapper.RegisterMapper">
+    <resultMap id="BaseResultMap" type="cn.neusoft.xuxiao.entity.Register">
+        <result column="id" property="id"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_class_id" property="studentClassId"/>
+        <result column="student_class" property="studentClass"/>
+        <result column="start_time" property="startTime"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="address" property="address"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        student_name AS studentName,
+        student_class_id AS studentClassId,
+        student_class AS studentClass,
+        start_time AS startTime,
+        image_url AS imageUrl,
+        address AS address,
+        status,
+        create_time AS createTime,
+        update_time AS updateTime
+    </sql>
+</mapper>

@@ -16,6 +16,8 @@ public class StatusConstant {
 	// 错误代码
 	/**获取成功*/
 	public static final Integer SUCCESS_CODE = 200;
+
+	public static final Integer BUSINESS_EXCEPTION = 201;
 	// 201 备用
 	/**获取失败*/
 	public static final Integer Fail_CODE = 202;
@@ -63,5 +65,10 @@ public class StatusConstant {
 
 	/** 区县级 */
 	public static final String JUSTBON_ALL_CITY_Q = "justbon_all_city_Q";
+
+	/**
+	 * 答题总时间
+	 */
+	public static final int  ALL_EXAM_TIME = 120;
 
 }

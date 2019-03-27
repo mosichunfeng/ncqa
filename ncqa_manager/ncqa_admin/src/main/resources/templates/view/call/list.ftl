@@ -53,7 +53,7 @@
                             </td>
                             <td> ${((item.status == 1)?string("已结束","未结束"))!''}</td>
                             <td>
-                                <a href="${basePath}/student/list?studentClassId=${item.id!''}" class="edit">
+                                <a href="${basePath}/call/registerList?id=${item.id!''}" class="edit">
                                     <li class="fa  fa-edit">查看签到列表</li>
                                 </a>
                                 <a href="${basePath}/call/getPhoto">

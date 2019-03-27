@@ -98,4 +98,5 @@ public class AdminController extends BaseController {
         model.addAttribute("allRole",roleService.selectAll());
         return "view/admin/add";
     }
+
 }

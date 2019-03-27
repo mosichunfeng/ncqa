@@ -13,7 +13,7 @@
 </head>
 <body class="pace-top">
 <div class="login-cover">
-    <div class="login-cover-image"><img src="${basePath}/assets/img/login-bg/bg-1.jpg" data-id="login-cover-image" alt="" /></div>
+    <div class="login-cover-image"><img src="${basePath}/assets/img/login-bg/bg-${random}.jpg" data-id="login-cover-image" alt="" /></div>
 </div>
 <!-- begin #page-container -->
 <div id="page-container" class="fade">
