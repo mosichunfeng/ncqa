@@ -5,7 +5,6 @@ import cn.neusoft.xuxiao.entity.*;
 import cn.neusoft.xuxiao.service.*;
 import cn.neusoft.xuxiao.util.*;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonObject;
 import com.magicbeans.base.RestBaseController;
 import com.magicbeans.base.ajax.ResponseData;
 import com.magicbeans.base.db.Filter;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @ResponseBody
@@ -41,6 +41,9 @@ public class UserController extends RestBaseController {
 
     @Autowired
     private IExamHistoryService examHistoryService;
+
+    @Autowired
+    private IQuestionService questionService;
 
     @RequestMapping("/getSessionKeyAndOropenid")
     public ResponseData getSessionKeyAndOropenid(String code) {
@@ -168,23 +171,23 @@ public class UserController extends RestBaseController {
     }
 
     @RequestMapping("/startAnswerQuestion")
-    public ResponseData startAnswerQuestion(String user_id,String code){
+    public ResponseData startAnswerQuestion(String user_id, String code) {
         if (CommonUtil.isEmpty(user_id, code)) {
             return buildFailureJson(StatusConstant.BUSINESS_EXCEPTION, "参数填写不完整!");
         }
         ActivityCode activityCode = activityCodeService.find("code", code);
-        if(activityCode==null || !activityCode.getUserId().equals(user_id)){
+        if (activityCode == null || !activityCode.getUserId().equals(user_id)) {
             return buildFailureJson(StatusConstant.BUSINESS_EXCEPTION, "答题码错误!");
         }
         JSONObject result = new JSONObject();
         ExamHistory exam = examHistoryService.find("code", code);
-        if(exam!=null){
-            if(exam.getStatus() == 1){//已完成，返回结果
+        if (exam != null) {
+            if (exam.getStatus() == 1) {//已完成，返回结果
                 result.put("user_id", user_id);
                 result.put("status", 1);
-                result.put("grade",exam.getGrade());
+                result.put("grade", exam.getGrade());
                 return buildSuccessJson(StatusConstant.SUCCESS_CODE, "获取成功", result);
-            }else{
+            } else {
                 long minutes = (new Date().getTime() - exam.getStartTime()) / 60000;
                 long last_minutes = 120 - minutes;
                 result.put("user_id", user_id);
@@ -193,39 +196,79 @@ public class UserController extends RestBaseController {
                 QuestionBase questionBase = questionBaseService.findAllQuestionAndAnswer(activityCode.getQuestionBaseId());
                 result.put("question_base", questionBase);
             }
-        }else{
+        } else {
+            ExamHistory examDO = new ExamHistory();
+            examDO.setUserId(user_id);
+            examDO.setQuestionBaseId(activityCode.getQuestionBaseId());
+            examDO.setActivityCode(activityCode.getCode());
+            examDO.setStartTime(new Date().getTime());
+            examDO.setStatus(0);
+            examHistoryService.save(examDO);
+
             result.put("user_id", user_id);
             result.put("status", 0);
             result.put("last_minutes", StatusConstant.ALL_EXAM_TIME);
+            QuestionBase questionBase = questionBaseService.findAllQuestionAndAnswer(activityCode.getQuestionBaseId());
+            result.put("question_base", questionBase);
         }
         return buildSuccessJson(StatusConstant.SUCCESS_CODE, "获取成功", result);
     }
 
 
     @RequestMapping("/submitContent")
-    public ResponseData submitContent(SubmitContentRequest reqMsg){
-        if(StringUtils.isEmpty(reqMsg.getUser_id())){
+    public ResponseData submitContent(SubmitContentRequest reqMsg) {
+        if (StringUtils.isEmpty(reqMsg.getUser_id())) {
             return buildFailureJson(StatusConstant.BUSINESS_EXCEPTION, "用户id不能为空!");
         }
-        if(StringUtils.isEmpty(reqMsg.getQuestion_base_id())){
+        if (StringUtils.isEmpty(reqMsg.getQuestion_base_id())) {
             return buildFailureJson(StatusConstant.BUSINESS_EXCEPTION, "题库id不能为空!");
         }
 
         JSONObject result = new JSONObject();
-        String []value = {reqMsg.getUser_id(),reqMsg.getQuestion_base_id()};
-        String []key = {"user_id","question_base_id"};
+        String[] value = {reqMsg.getUser_id(), reqMsg.getQuestion_base_id()};
+        String[] key = {"user_id", "question_base_id"};
         ExamHistory exam = examHistoryService.find(key, value);
-        if(exam == null){
+        if (exam == null) {
             logger.error("有人入侵!");
             return buildFailureJson(StatusConstant.BUSINESS_EXCEPTION, "信不信爷顺着网线来打你？给爷爬!");
         }
 
         //计算答题时间
-        if((new Date().getTime() - exam.getStartTime()) > StatusConstant.ALL_EXAM_TIME){
+        if ((new Date().getTime() - exam.getStartTime()) > StatusConstant.ALL_EXAM_TIME) {
             result.put("grade", result);
         }
 
+        //获取选择题答案
+        Map<String, String> selectMap = questionService.findSelectAnswerRefByBaseIdAndType(exam.getQuestionBaseId());
+        int selectCount = caculateAnswer(selectMap, reqMsg.getDataMap());
 
-        return null;
+        //获取填空题答案
+        Map<String, String> fillMap = questionService.findFillAnswerRefByBaseIdAndType(exam.getQuestionBaseId());
+        int fillCount = caculateAnswer(fillMap, reqMsg.getDataMap2());
+
+        int grade = selectCount * 2 + fillCount * 4;
+
+        exam.setStatus(1);
+        exam.setGrade(grade);
+        exam.setEndTime(new Date().getTime());
+        examHistoryService.updateSelective(exam);
+        result.put("grade", grade);
+        return buildSuccessJson(StatusConstant.SUCCESS_CODE, "获取成功", result);
     }
+
+    private int caculateAnswer(Map<String, String> selectMap, Map<String, String> dataMap) {
+        int count = 0;
+        try {
+            for (String index : dataMap.keySet()) {
+                if (dataMap.get(index).equals(selectMap.get(index))) {
+                    count++;
+                }
+            }
+        } catch (NullPointerException e) {
+            logger.error("空指针异常!请debug");
+            return 0;
+        }
+        return count;
+    }
+
 }

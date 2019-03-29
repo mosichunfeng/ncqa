@@ -18,4 +18,27 @@
         question_type AS questionType
         grade
     </sql>
+
+    <select id="findFillAnswerRefByBaseIdAndType" resultType="java.util.HashMap">
+      SELECT
+      q.id,
+      ra.right_answer_content
+      FROM question q
+      INNER JOIN right_answer ra
+      ON ra.question_id = q.id
+      WHERE q.question_type = 2
+      AND q.question_base_id = {base_id}
+    </select>
+
+    <select id="findSelectAnswerRefByBaseIdAndType" resultType="java.util.HashMap">
+      SELECT
+      q.id,
+      ra.right_answer_index
+      q.grade
+      FROM question q
+      INNER JOIN right_answer ra
+      ON ra.question_id = q.id
+      WHERE q.question_type = 1
+      AND q.question_base_id = {base_id}
+    </select>
 </mapper>

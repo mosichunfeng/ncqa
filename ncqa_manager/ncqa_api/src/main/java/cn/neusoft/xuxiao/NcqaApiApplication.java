@@ -2,18 +2,20 @@ package cn.neusoft.xuxiao;
 
 import cn.neusoft.xuxiao.redis.JdkRedisTemplate;
 import cn.neusoft.xuxiao.redis.ObjectRedisTemplate;
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
+import org.apache.tomcat.util.descriptor.web.SecurityCollection;
+import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.boot.web.servlet.ErrorPage;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -59,14 +61,38 @@ public class NcqaApiApplication extends SpringBootServletInitializer implements 
     }
 
 
-    @Bean
-    public EmbeddedServletContainerCustomizer containerCustomizer() {
 
-        return (container -> {
-            ErrorPage error401Page = new ErrorPage(HttpStatus.UNAUTHORIZED, "/error/401.html");
-            ErrorPage error404Page = new ErrorPage(HttpStatus.NOT_FOUND, "/error/404.html");
-            ErrorPage error500Page = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/error/500.html");
-            container.addErrorPages(error401Page, error404Page, error500Page);
-        });
-    }
+    /**
+	 * http重定向到https
+	 * @return
+	 */
+	@Bean
+	public TomcatServletWebServerFactory servletContainer() {
+		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
+			@Override
+			protected void postProcessContext(Context context) {
+				SecurityConstraint constraint = new SecurityConstraint();
+				constraint.setUserConstraint("CONFIDENTIAL");
+				SecurityCollection collection = new SecurityCollection();
+				collection.addPattern("/*");
+				constraint.addCollection(collection);
+				context.addConstraint(constraint);
+			}
+		};
+		tomcat.addAdditionalTomcatConnectors(httpConnector());
+		return tomcat;
+	}
+
+	@Bean
+	public Connector httpConnector() {
+		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+		connector.setScheme("http");
+		//Connector监听的http的端口号
+		connector.setPort(8080);
+		connector.setSecure(false);
+		//监听到http的端口号后转向到的https的端口号
+		connector.setRedirectPort(443);
+		return connector;
+	}
+
 }

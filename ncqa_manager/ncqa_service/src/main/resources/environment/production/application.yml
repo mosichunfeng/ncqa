@@ -1,0 +1,7 @@
+#实习同学签到图片URL地址
+outside_image_url: var/www/html/ncqa-file/outside/
+#在校学生签到图片URL地址
+inside_image_url: var/www/html/ncqa-file/inside/
+
+#服务器签到异步任务线程池数量上限
+async_thread_num: 5

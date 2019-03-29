@@ -30,4 +30,5 @@ public class ExamDetail extends BaseEntity<ExamDetail> {
     @TableField("question_type")
     private String questionType;
 
+    private String grade;
 }
